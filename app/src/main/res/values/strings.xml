@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Uber</string>
+    <string name="app_name">Z I Z O</string>
+    <string name="partener">Captain zizo, your rider</string>
+    <string name="title_activity_home">Map</string>
 </resources>

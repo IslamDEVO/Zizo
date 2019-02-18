@@ -17,7 +17,7 @@
         android:layout_height="wrap_content">
         
         <TextView
-            android:text="U B E R"
+            android:text="@string/app_name"
             android:textSize="36sp"
             android:textAlignment="center"
             android:textColor="@android:color/white"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:text="PARTENER"
+            android:text="@string/partener"
             android:layout_marginTop="20dp"
             android:textSize="16sp"
             android:textAlignment="center"
@@ -58,7 +58,7 @@
 
         <Button
             android:id="@+id/btnSignIn"
-            android:background="@drawable/btn_sign_in_background"
+            tools:background="@drawable/btn_sign_in_background_v21"
             android:textColor="@android:color/white"
             android:text="SIGN IN"
             android:layout_marginRight="16dp"
@@ -68,7 +68,7 @@
 
         <Button
             android:id="@+id/btnRegister"
-            android:background="@drawable/btn_register_background"
+            tools:background="@drawable/btn_register_background_v21"
             android:textColor="@color/btnRegister"
             android:text="REGISTER"
             android:layout_marginLeft="16dp"

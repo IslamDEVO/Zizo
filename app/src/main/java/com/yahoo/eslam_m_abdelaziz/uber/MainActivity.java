@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.yahoo.eslam_m_abdelaziz.uber.Model.User;
 
+import dmax.dialog.SpotsDialog;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -65,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
         btnSignIn = (Button) findViewById(R.id.btnSignIn);
         btnRegister = (Button) findViewById(R.id.btnRegister);
         rootLayout = (RelativeLayout) findViewById(R.id.rootLayout);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
+            // Do something for lollipop and above versions
+            btnSignIn.setBackground(ContextCompat.getDrawable(getBaseContext(), R.drawable.btn_sign_in_background_v21));
+            btnRegister.setBackground(ContextCompat.getDrawable(getBaseContext(), R.drawable.btn_register_background_v21));
+        } else{
+            // do something for phones running an SDK before lollipop
+            btnSignIn.setBackground(ContextCompat.getDrawable(getBaseContext(), R.drawable.btn_sign_in_background));
+            btnRegister.setBackground(ContextCompat.getDrawable(getBaseContext(), R.drawable.btn_register_background));
+        }
         //init Events
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
 
+                //btnSignIn.setEnabled(false);
                 //email
                 if(TextUtils.isEmpty(edtEmail.getText().toString())){
                     Snackbar.make(rootLayout,"Please enter email address",Snackbar.LENGTH_SHORT).show();
@@ -234,11 +247,19 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                 }
+
+                //The library requires minimum API level 15.
+                final AlertDialog waitingDialog = new SpotsDialog.Builder()
+                        .setContext(MainActivity.this)
+                        .build();
+                waitingDialog.show();
+
                 //sign in
                 auth.signInWithEmailAndPassword(edtEmail.getText().toString(), edtPassword.getText().toString())
                         .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                             @Override
                             public void onSuccess(AuthResult authResult) {
+                                waitingDialog.dismiss();
                                 startActivity(new Intent(MainActivity.this, Home.class));
                                 finish(); //to finish the MainActivity
                             }
@@ -246,8 +267,10 @@ public class MainActivity extends AppCompatActivity {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                waitingDialog.dismiss();
                                 Snackbar.make(rootLayout,"failed"+e.getMessage(),Snackbar.LENGTH_SHORT).show();
                                 Log.e("sign in",e.getMessage());
+                                //btnSignIn.setEnabled(true);
                             }
                         });
 
@@ -258,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+                //btnSignIn.setEnabled(true);
+
             }
         });
 
