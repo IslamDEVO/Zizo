@@ -14,7 +14,9 @@
     <color name="btnSignIn">#1fbad6</color>
     <color name="btnRegister">#83838c</color>
     <!-- activity_home -->
+    <color name="dividerText">#1f000000</color>
     <color name="baseReleaseColor">#212121</color>
     <color name="basePressColor">#fafafa</color>
     <color name="ballReleaseColor">#9e9e9e</color>
+    <!-- activity -->
 </resources>

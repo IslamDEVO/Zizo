@@ -2,4 +2,11 @@
     <string name="app_name">Z I Z O</string>
     <string name="partener">Captain zizo, your rider</string>
     <string name="title_activity_home">Map</string>
+    <string name="google_maps_API_key">AIzaSyDXdBJmDYxbzrzyYJrXBqncA46Go943V5k</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 </resources>

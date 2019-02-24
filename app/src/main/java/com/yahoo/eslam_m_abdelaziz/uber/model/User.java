@@ -1,4 +1,4 @@
-package com.yahoo.eslam_m_abdelaziz.uber.Model;
+package com.yahoo.eslam_m_abdelaziz.uber.model;
 
 public class User {
 
