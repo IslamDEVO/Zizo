@@ -87,8 +87,38 @@
 
             </LinearLayout>
 
-
         </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="50dp"
+        app:cardElevation="10dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgExpandable"
+            android:src="@drawable/ic_keyboard_arrow_up_black_24dp"
+            android:layout_gravity="right"/>
+
+        <Button
+            android:id="@+id/btnPickupRequest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/btn_sign_in_background"
+            android:text="PICKUP REQUEST"/>
+
 
     </android.support.v7.widget.CardView>
 

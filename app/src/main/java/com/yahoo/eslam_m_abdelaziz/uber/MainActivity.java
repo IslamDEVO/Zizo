@@ -1,11 +1,15 @@
 package com.yahoo.eslam_m_abdelaziz.uber;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,7 +19,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TabHost;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -26,14 +34,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.yahoo.eslam_m_abdelaziz.uber.model.User;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import dmax.dialog.SpotsDialog;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
 
-    // variables
-    private final static int PERMISSION = 1000;
+    // permission
+    private static final String TAG = "ZIZO Main Activity";
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private Boolean mLocationPermissionsGranted = false;
     // view variables
     Button btnSignIn, btnRegister;
     RelativeLayout rootLayout;
@@ -65,8 +81,15 @@ public class MainActivity extends AppCompatActivity {
         //startActivity(intent);
         //----------------------------------------//
 
+        // init app
+        if(isServicesOK()){
+            initApp();
+        }
+    }
+
+    private void initApp() {
         //init firebase
-        FirebaseApp.initializeApp(this);
+        //FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
         users = db.getReference("Riders");
@@ -85,17 +108,39 @@ public class MainActivity extends AppCompatActivity {
         }
         //init Events
         btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showRegisterDialog();
-            }
-        });
+                @Override
+                public void onClick(View v) {
+                    showRegisterDialog();
+                }
+            });
         btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSignInDialog();
-            }
-        });
+                @Override
+                public void onClick(View v) {
+                    showSignInDialog();
+                }
+            });
+
+    }
+
+    public boolean isServicesOK(){
+        Log.d(TAG, "isServicesOK: checking google services version");
+
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
+
+        if(available == ConnectionResult.SUCCESS){
+            //everything is fine and the user can make map requests
+            Log.d(TAG, "isServicesOK: Google Play Services is working");
+            return true;
+        }
+        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+            //an error occured but we can resolve it
+            Log.d(TAG, "isServicesOK: an error occured but we can fix it");
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
+            dialog.show();
+        }else{
+            Toast.makeText(this, "You can't make map requests", Toast.LENGTH_LONG).show();
+        }
+        return false;
     }
 
     //register dialog
@@ -121,41 +166,41 @@ public class MainActivity extends AppCompatActivity {
 
                 //email
                 if(TextUtils.isEmpty(edtEmail.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter email address",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input email field","Please enter email address");
+                    Snackbar.make(rootLayout,"Please enter email address",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showRegisterDialog : Please enter email address");
                     return;
                 }else {
                     String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
                     java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
                     java.util.regex.Matcher m = p.matcher(edtEmail.getText().toString());
                     if(!m.matches()){
-                        Snackbar.make(rootLayout,"Please enter valid email address",Snackbar.LENGTH_SHORT).show();
-                        Log.e("input email field","Please enter valid email address");
+                        Snackbar.make(rootLayout,"Please enter valid email address",Snackbar.LENGTH_LONG).show();
+                        Log.d(TAG,"showRegisterDialog : Please enter valid email address");
                         return;
                     }
                 }
                 //password
                 if(TextUtils.isEmpty(edtPassword.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter password",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input password field","Please enter password");
+                    Snackbar.make(rootLayout,"Please enter password",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showRegisterDialog : Please enter password");
                     return;
                 }else {
                     if (edtPassword.getText().length() < 6) {
-                        Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_SHORT).show();
-                        Log.e("input password field","Password too short !!!");
+                        Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_LONG).show();
+                        Log.d(TAG,"showRegisterDialog : Password too short !!!");
                         return;
                     }
                 }
                 //name
                 if(TextUtils.isEmpty(edtName.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter Name",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input name field","Please enter Name");
+                    Snackbar.make(rootLayout,"Please enter Name",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showRegisterDialog : Please enter Name");
                     return;
                 }
                 //phone
                 if(TextUtils.isEmpty(edtPhone.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter phone number",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input phone field","Please enter phone number");
+                    Snackbar.make(rootLayout,"Please enter phone number",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showRegisterDialog : Please enter phone number");
                     return;
                 }
                 //register new user
@@ -176,21 +221,21 @@ public class MainActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Snackbar.make(rootLayout,"Register Successfully",Snackbar.LENGTH_SHORT).show();
+                                                Snackbar.make(rootLayout,"Register Successfully",Snackbar.LENGTH_LONG).show();
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                Snackbar.make(rootLayout,"failed "+e.getMessage(),Snackbar.LENGTH_SHORT).show();
-                                                Log.e("save user to db",e.getMessage());
+                                                Snackbar.make(rootLayout,"failed "+e.getMessage(),Snackbar.LENGTH_LONG).show();
+                                                Log.d(TAG,"createUserWithEmailAndPassword : "+e.getMessage());
                                             }
                                 });
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Snackbar.make(rootLayout,"failed "+e.getMessage(),Snackbar.LENGTH_SHORT).show();
-                                Log.e("register new user",e.getMessage());
+                                Snackbar.make(rootLayout,"failed "+e.getMessage(),Snackbar.LENGTH_LONG).show();
+                                Log.d(TAG,"createUserWithEmailAndPassword : "+e.getMessage());
                             }
                         });
             }
@@ -210,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
     private void showSignInDialog() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Sign In");
-        dialog.setMessage("Plaese use email and password to sign in");
+        dialog.setMessage("Please use email and password to sign in");
 
         LayoutInflater inflater = LayoutInflater.from(this);
         View sign_in_layout = inflater.inflate(R.layout.layout_sign_in, null);
@@ -228,28 +273,28 @@ public class MainActivity extends AppCompatActivity {
                 //btnSignIn.setEnabled(false);
                 //email
                 if(TextUtils.isEmpty(edtEmail.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter email address",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input email field","Please enter email address");
+                    Snackbar.make(rootLayout,"Please enter email address",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showSignInDialog : Please enter email address");
                     return;
                 }else {
                     String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
                     java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
                     java.util.regex.Matcher m = p.matcher(edtEmail.getText().toString());
                     if(!m.matches()){
-                        Snackbar.make(rootLayout,"Please enter valid email address",Snackbar.LENGTH_SHORT).show();
-                        Log.e("input email field","Please enter valid email address");
+                        Snackbar.make(rootLayout,"Please enter valid email address",Snackbar.LENGTH_LONG).show();
+                        Log.d(TAG,"showSignInDialog : Please enter valid email address");
                         return;
                     }
                 }
                 //password
                 if(TextUtils.isEmpty(edtPassword.getText().toString())){
-                    Snackbar.make(rootLayout,"Please enter password",Snackbar.LENGTH_SHORT).show();
-                    Log.e("input password field","Please enter password");
+                    Snackbar.make(rootLayout,"Please enter password",Snackbar.LENGTH_LONG).show();
+                    Log.d(TAG,"showSignInDialog : Please enter password");
                     return;
                 }else {
                     if (edtPassword.getText().length() < 6) {
-                        Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_SHORT).show();
-                        Log.e("input password field","Password too short !!!");
+                        Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_LONG).show();
+                        Log.d(TAG,"showSignInDialog : Password too short !!!");
                         return;
                     }
                 }
@@ -274,8 +319,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 waitingDialog.dismiss();
-                                Snackbar.make(rootLayout,"failed"+e.getMessage(),Snackbar.LENGTH_SHORT).show();
-                                Log.e("sign in",e.getMessage());
+                                Snackbar.make(rootLayout,"failed"+e.getMessage(),Snackbar.LENGTH_LONG).show();
+                                Log.d(TAG,"signInWithEmailAndPassword : "+e.getMessage());
                                 //btnSignIn.setEnabled(true);
                             }
                         });
